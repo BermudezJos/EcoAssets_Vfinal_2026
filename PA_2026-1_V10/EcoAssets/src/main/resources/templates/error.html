@@ -23,10 +23,7 @@
             max-width: 500px;
             border-top: 5px solid #dc3545;
         }
-        h1 {
-            color: #dc3545;
-            margin-top: 0;
-        }
+        h1 { color: #dc3545; margin-top: 0; }
         .status-code {
             font-size: 3rem;
             font-weight: bold;
@@ -43,26 +40,48 @@
             border-radius: 5px;
             transition: background 0.3s;
         }
-        .btn:hover {
-            background-color: #0056b3;
-        }
+        .btn:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
+<div class="error-card">
+    <h1>Algo salió mal</h1>
 
-    <div class="error-card">
-        <h1>Algo salió mal</h1>
-        
-        <div class="status-code">
-            Error <span th:text="${status}">000</span>
-        </div>
-        
-        <h3 th:text="${error}">Tipo de Error</h3>
-        
-        <p th:text="${message}">Detalle de lo que provocó el error.</p>
-        
-        <a th:href="@{/dispositivos}" class="btn">Volver a la tienda</a>
+    <div class="status-code">
+        Error <span th:text="${status}">000</span>
     </div>
 
+    <!-- Traducción del tipo de error (${error}) -->
+    <h3>
+        <span th:switch="${error}">
+            <span th:case="'Bad Request'">Solicitud incorrecta</span>
+            <span th:case="'Unauthorized'">No autorizado</span>
+            <span th:case="'Forbidden'">Acceso prohibido</span>
+            <span th:case="'Not Found'">Recurso no encontrado</span>
+            <span th:case="'Method Not Allowed'">Método no permitido</span>
+            <span th:case="'Conflict'">Conflicto</span>
+            <span th:case="'Gone'">Recurso eliminado</span>
+            <span th:case="'Unprocessable Entity'">Entidad no procesable</span>
+            <span th:case="'Too Many Requests'">Demasiadas solicitudes</span>
+            <span th:case="'Internal Server Error'">Error interno del servidor</span>
+            <span th:case="'Not Implemented'">No implementado</span>
+            <span th:case="'Bad Gateway'">Puerta de enlace incorrecta</span>
+            <span th:case="'Service Unavailable'">Servicio no disponible</span>
+            <span th:case="'Gateway Timeout'">Tiempo de espera de la puerta de enlace agotado</span>
+            <span th:case="*" th:text="${error}">Tipo de error</span>
+        </span>
+    </h3>
+
+    <!-- Traducción del mensaje de error (${message}) -->
+    <p>
+        <span th:switch="${message}">
+            <span th:case="'No message available'">Sin detalles disponibles</span>
+            <span th:case="'No static resource dispositivos.'">La página solicitada no existe</span>
+            <span th:case="*" th:text="${message}">Detalle del error</span>
+        </span>
+    </p>
+
+    <a th:href="@{/dispositivos}" class="btn">Volver a la tienda</a>
+</div>
 </body>
 </html>
