@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Perfil de ' + ${usuario.nombre})}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+    
+    <div class="container mt-5 mb-5">
+        <div class="card mb-4 shadow-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2 text-center">
+                        <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center mx-auto" 
+                             style="width: 100px; height: 100px; font-size: 2.5rem;">
+                            <span th:text="${#strings.substring(usuario.nombre, 0, 1)}">U</span>
+                        </div>
+                    </div>
+                    <div class="col-md-7">
+                        <h2 class="fw-bold mb-2" th:text="${usuario.nombre}">Nombre</h2>
+                        <p class="text-muted mb-1" th:if="${esPropioPerfil or esAdmin}">
+                            <i class="bi bi-envelope"></i> <span th:text="${usuario.email}">email</span>
+                        </p>
+                        <p class="text-muted mb-1"><i class="bi bi-telephone"></i> <span th:text="${usuario.telefono}">tel</span></p>
+                        <span class="badge bg-primary" th:text="${usuario.tipo}">USUARIO</span>
+                    </div>
+                    
+                    <div class="col-md-3 text-md-end mt-3 mt-md-0">
+                        <a th:if="${esPropioPerfil}" th:href="@{/usuarios/editar/{id}(id=${usuario.id})}" 
+                           class="btn btn-warning mb-2 d-block">
+                            <i class="bi bi-pencil"></i> Editar mi perfil
+                        </a>
+                        <a th:if="${esAdmin or esPropioPerfil}" th:href="@{/usuarios/eliminar/{id}(id=${usuario.id})}" 
+                           class="btn btn-danger d-block"
+                           onclick="return confirm('¿Eliminar este usuario y todos sus productos?')">
+                            <i class="bi bi-trash"></i> Eliminar usuario
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            
+            <div th:class="${esPropioPerfil} ? 'col-lg-8' : 'col-12'">
+                <h4 class="fw-bold mb-4">
+                    <i class="bi bi-box-seam"></i> Productos publicados 
+                    <span class="badge bg-secondary" th:text="${#lists.size(dispositivos)}">0</span>
+                </h4>
+                
+                <div class="row g-3">
+                    <div th:class="${esPropioPerfil} ? 'col-md-6 col-lg-4' : 'col-6 col-md-4 col-lg-3'" th:each="disp : ${dispositivos}">
+                        <div class="card product-card h-100 shadow-sm">
+                            <div class="position-relative">
+                                <img th:src="${disp.imagenUrl}" class="card-img-top p-2" 
+                                     style="height: 150px; object-fit: contain;" th:alt="${disp.nombre}">
+                                <span class="position-absolute top-0 end-0 m-2 badge" 
+                                      th:classappend="${disp.disponible} ? 'bg-success' : 'bg-danger'"
+                                      th:text="${disp.disponible} ? 'Disponible' : 'Vendido'">Estado</span>
+                            </div>
+                            <div class="card-body p-3">
+                                <h6 class="card-title mb-1 text-truncate" th:text="${disp.nombre}">Nombre</h6>
+                                <div class="text-success fw-bold mb-2" th:text="'$ ' + ${disp.precioFormateado}">$0</div>
+                                <a th:href="@{/dispositivos/{id}(id=${disp.id})}" class="btn btn-sm btn-outline-primary w-100">Ver Detalles</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="text-center py-5" th:if="${#lists.isEmpty(dispositivos)}">
+                    <i class="bi bi-box display-1 text-muted"></i>
+                    <h4 class="mt-3 text-muted">No hay productos publicados</h4>
+                </div>
+            </div>
+
+            <div class="col-lg-4 mt-5 mt-lg-0" th:if="${esPropioPerfil}">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-dark text-white py-3">
+                        <h5 class="mb-0 fw-bold"><i class="bi bi-bag-check"></i> Mis Compras</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div th:each="pedido : ${pedidos}" class="list-group-item p-3">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <small class="text-muted fw-bold" th:text="${#temporals.format(pedido.fecha, 'dd/MM/yyyy HH:mm')}">Fecha</small>
+                                    <span class="badge bg-info text-dark" th:text="'ID: ' + ${#strings.substring(pedido.id, 18)}">ID</span>
+                                </div>
+                                <h6 class="mb-1">Productos comprados:</h6>
+                                <ul class="small ps-3 mb-2">
+                                    <li th:each="prod : ${pedido.productos}" th:text="${prod.nombre}">Producto</li>
+                                </ul>
+                                <div class="text-end">
+                                    <span class="fw-bold text-success" th:text="'Total: $ ' + ${#numbers.formatDecimal(pedido.total, 0, 'COMMA', 0, 'POINT')}">Total</span>
+                                </div>
+                            </div>
+                            
+                            <div th:if="${#lists.isEmpty(pedidos)}" class="p-4 text-center">
+                                <i class="bi bi-cart-x fs-1 text-muted"></i>
+                                <p class="text-muted mt-2">Aún no has realizado ninguna compra.</p>
+                                <a href="/dispositivos" class="btn btn-sm btn-primary">Ir a la tienda</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="mt-5">
+            <a href="/dispositivos" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i> Volver a la tienda</a>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

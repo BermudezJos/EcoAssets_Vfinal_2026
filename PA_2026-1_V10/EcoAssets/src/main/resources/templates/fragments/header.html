@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" 
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title}">EcoAssets</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        :root {
+            --primary-color: #3483fa;
+            --secondary-color: #fff159;
+            --bg-color: #ebebeb;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            font-family: 'Proxima Nova', -apple-system, 'Helvetica Neue', Helvetica, Roboto, Arial, sans-serif;
+        }
+        
+        .navbar-custom {
+            background: linear-gradient(90deg, #f90 0%, #f50 100%);
+            padding: 1rem 0;
+        }
+        
+        .search-box {
+            background-color: white;
+            border-radius: 25px;
+            border: none;
+            padding: 10px 20px;
+        }
+        
+        .btn-publish {
+            background-color: var(--secondary-color);
+            color: #333;
+            border: none;
+            border-radius: 25px;
+            padding: 10px 25px;
+            font-weight: 600;
+            transition: all 0.3s;
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        
+        .btn-publish:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+            background-color: #ffe600;
+        }
+        
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            transition: all 0.3s;
+            border: none;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        
+        .product-card:hover {
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+            transform: translateY(-4px);
+        }
+        
+        .price-tag {
+            color: #333;
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+        
+        .user-badge {
+            background-color: rgba(255,255,255,0.2);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-custom" th:fragment="navbar">
+        <div class="container">
+            <a class="navbar-brand text-white fw-bold fs-3" href="/dispositivos">
+                <i class="bi bi-lightning-charge-fill"></i> EcoAssets
+            </a>
+            
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <form class="d-flex mx-auto w-50" th:action="@{/dispositivos}" method="get">
+                    <input class="form-control search-box me-2" type="search" 
+                           placeholder="Buscar productos, marcas y más..." 
+                           name="busqueda" th:value="${busqueda}">
+                    <button class="btn btn-light" type="submit"><i class="bi bi-search"></i></button>
+                </form>
+                
+                <ul class="navbar-nav ms-auto align-items-center">
+                    <li class="nav-item">
+                        <a class="nav-link text-white" href="/dispositivos"><i class="bi bi-shop"></i> Tienda</a>
+                    </li>
+                    
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link text-white" href="/admin/panel">
+                            <i class="bi bi-shield-lock"></i> Admin
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link text-white" href="/dispositivos/nuevo">
+                            <i class="bi bi-plus-circle"></i> Vender
+                        </a>
+                    </li>
+
+                    <li class="nav-item" sec:authorize="isAuthenticated()">
+                        <a class="nav-link text-white" th:href="@{/carrito}">
+                            <i class="bi bi-cart3"></i> Carrito
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item ms-2" sec:authorize="!isAuthenticated()">
+                        <a class="btn btn-outline-light btn-sm" href="/login">
+                            <i class="bi bi-box-arrow-in-right"></i> Ingresar
+                        </a>
+                    </li>
+
+                    <li class="nav-item ms-2" sec:authorize="!isAuthenticated()">
+                        <a th:href="@{/registro}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-box-arrow-in-right"></i> Crear Cuenta
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item ms-2 d-flex align-items-center" sec:authorize="isAuthenticated()">
+                        <a class="nav-link text-white user-badge" th:href="@{/usuarios/mi-perfil}">
+                            <i class="bi bi-person-circle"></i> <span sec:authentication="name">Usuario</span>
+                        </a>
+                    </li>
+                    
+                    <li class="nav-item ms-2 d-flex align-items-center" sec:authorize="isAuthenticated()">
+                        <form th:action="@{/logout}" method="post" class="m-0">
+                            <button type="submit" class="btn btn-outline-light btn-sm">
+                                <i class="bi bi-box-arrow-right"></i> Salir
+                            </button>
+                        </form>
+                    </li>
+                    </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <form id="logoutForm" th:action="@{/logout}" method="post" style="display: none;"></form>
+</body>
+</html>

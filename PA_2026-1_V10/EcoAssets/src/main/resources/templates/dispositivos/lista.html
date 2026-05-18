@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/header :: head('Tienda de Electrónicos')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+    
+    <!-- Mensajes de alerta -->
+    <div class="container mt-3" th:if="${mensaje}">
+        <div class="alert alert-success alert-dismissible fade show">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+    <div class="container mt-3" th:if="${error}">
+        <div class="alert alert-danger alert-dismissible fade show">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+    
+    <!-- Categorías -->
+    <div class="container mt-4">
+        <div class="d-flex gap-2 overflow-auto pb-3">
+            <a th:href="@{/dispositivos}" 
+               th:class="${categoriaSeleccionada == null} ? 'btn btn-primary' : 'btn btn-outline-primary'"
+               class="rounded-pill">Todos</a>
+            <a th:each="cat : ${categorias}" 
+               th:href="@{/dispositivos(categoria=${cat})}"
+               th:class="${categoriaSeleccionada == cat} ? 'btn btn-primary' : 'btn btn-outline-primary'"
+               class="rounded-pill"
+               th:text="${cat}">Categoría</a>
+        </div>
+    </div>
+
+    <!-- Filtros-->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <h5 class="card-title mb-3">Filtros de Búsqueda</h5>
+        
+            <form action="/dispositivos" method="GET" class="row g-3">
+
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Marca</label>
+                <input type="text" name="marca" class="form-control" placeholder="Ej: Samsung, Apple" th:value="${marcaSeleccionada}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Precio Mínimo ($)</label>
+                <input type="number" name="precioMin" class="form-control" placeholder="Ej: 50000" th:value="${precioMinSeleccionado}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Precio Máximo ($)</label>
+                <input type="number" name="precioMax" class="form-control" placeholder="Ej: 2000000" th:value="${precioMaxSeleccionado}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Departamento</label>
+                <select name="departamento" class="form-select">
+                    <option value="">Todo el país</option>
+                    <option value="Antioquia" th:selected="${departamentoSeleccionado == 'Antioquia'}">Antioquia</option>
+                    <option value="Atlántico" th:selected="${departamentoSeleccionado == 'Atlántico'}">Atlántico</option>
+                    <option value="Bogotá D.C." th:selected="${departamentoSeleccionado == 'Bogotá D.C.'}">Bogotá D.C.</option>
+                    <option value="Bolívar" th:selected="${departamentoSeleccionado == 'Bolívar'}">Bolívar</option>
+                    <option value="Valle del Cauca" th:selected="${departamentoSeleccionado == 'Valle del Cauca'}">Valle del Cauca</option>
+                    </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Municipio/Ciudad</label>
+                <input type="text" name="municipio" class="form-control" placeholder="Ej: Medellín" th:value="${municipioSeleccionado}">
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label text-muted small">Ordenar por</label>
+                <select name="ordenPrecio" class="form-select">
+                    <option value="">Más relevantes</option>
+                    <option value="asc" th:selected="${ordenSeleccionado == 'asc'}">Precio: Menor a Mayor</option>
+                    <option value="desc" th:selected="${ordenSeleccionado == 'desc'}">Precio: Mayor a Menor</option>
+                </select>
+            </div>
+
+            <!-- limpiar filtros -->
+            <div class="col-md-3 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary w-100 me-2">Aplicar Filtros</button>
+                <a href="/dispositivos" class="btn btn-outline-danger w-100">Limpiar</a>
+            </div>
+
+        </form>
+    </div>
+</div>
+    
+    <!-- Resultados -->
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 class="fw-bold" th:text="${busqueda != null} ? 'Resultados para: ' + ${busqueda} : 'Productos destacados'">
+                Productos destacados
+            </h4>
+            <span class="text-muted" th:text="${totalDispositivos} + ' resultados'">0 resultados</span>
+        </div>
+        
+        <!-- Grid de productos -->
+        <div class="row g-4">
+            <div class="col-6 col-md-4 col-lg-3" th:each="disp : ${dispositivos}">
+                <div class="card product-card h-100">
+                    <div class="position-relative">
+                        <img th:src="${disp.imagenUrl}" class="card-img-top p-3" 
+                             style="height: 200px; object-fit: contain;" 
+                             th:alt="${disp.nombre}">
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-success" 
+                              th:if="${disp.estado == 'Usado'}">Usado</span>
+                        <span class="position-absolute top-0 end-0 m-2 badge bg-warning text-dark" 
+                              th:if="${disp.estado == 'Reacondicionado'}">Reacondicionado</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="category-badge" th:text="${disp.categoria}">Categoría</span>
+                        </div>
+                        
+                        <h5 class="card-title fs-6 mb-1" th:text="${disp.nombre}">Nombre producto</h5>
+                        <p class="text-muted small mb-2" th:text="${disp.marca} + ' ' + ${disp.modelo}">Marca Modelo</p>
+                        
+                        <div class="price-tag" th:text="'$ ' + ${disp.precioFormateado}">$ 0.00</div>
+                        
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <small class="text-muted">
+                                <i class="bi bi-person-circle"></i> 
+                                <span th:text="${disp.vendedor.nombre}">Vendedor</span>
+                            </small>
+
+                            <!-- Botón EDITAR: solo el dueño -->
+                            <div class="d-flex gap-1">
+                            <a th:href="@{/dispositivos/editar/{id}(id=${disp.id})}"
+                                class="btn btn-outline-warning btn-sm"
+                                sec:authorize="isAuthenticated()"
+                                th:if="${disp.vendedor != null and #authentication.name == disp.vendedor.email}"
+                                title="Editar producto">
+                                <i class="bi bi-pencil"></i>
+                                </a>
+
+
+                            <!-- Botón eliminar: solo Admin o Dueño -->
+                            <a th:href="@{/dispositivos/eliminar/{id}(id=${disp.id})}" 
+                               class="btn btn-outline-danger btn-sm"
+                               sec:authorize="isAuthenticated()"
+                               th:if="${#authorization.expression('hasRole(''ADMIN'')') or 
+                                        (disp.vendedor != null and 
+                                         #authentication.name == disp.vendedor.email)}"
+                               onclick="return confirm('¿Eliminar este dispositivo?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                            </div>
+                        </div>
+
+                        <!--Boton hacia detalles.html-->
+                        <a th:href="@{/dispositivos/{id}(id=${disp.id})}" class="btn btn-primary w-100 mt-3">
+                            Ver Detalles
+                        </a>
+                        
+                    </div>
+            </div>
+        </div>
+        
+        <!-- Mensaje si no hay resultados -->
+        <div class="text-center py-5" th:if="${#lists.isEmpty(dispositivos)}">
+            <i class="bi bi-search display-1 text-muted"></i>
+            <h4 class="mt-3 text-muted">No se encontraron productos</h4>
+            <p class="text-muted">Intenta con otra búsqueda o categoría</p>
+            <a href="/dispositivos" class="btn btn-primary">Ver todos los productos</a>
+        </div>
+    </div>
+    
+    <!-- Botón flotante para publicar (solo autenticados) -->
+    <a href="/dispositivos/nuevo" class="btn btn-publish" sec:authorize="isAuthenticated()">
+        <i class="bi bi-plus-lg"></i> Vender producto
+    </a>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

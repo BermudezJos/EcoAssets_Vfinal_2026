@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head th:replace="~{fragments/header :: head('Panel de Administración')}"></head>
+
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container mt-5 mb-5">
+        <h2 class="fw-bold mb-4"><i class="bi bi-shield-lock"></i> Panel de Administración</h2>
+
+        <!-- Estadísticas -->
+        <div class="row g-4 mb-5">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-people display-4"></i>
+                        <h3 th:text="${totalUsuarios}">0</h3>
+                        <p class="mb-0">Total Usuarios</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-box display-4"></i>
+                        <h3 th:text="${totalDispositivos}">0</h3>
+                        <p class="mb-0">Total Productos</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <i class="bi bi-person display-4"></i>
+                        <h3 th:text="${totalNormales}">0</h3>
+                        <p class="mb-0">Usuarios Normales</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-dark">
+                    <div class="card-body text-center">
+                        <i class="bi bi-shield-check display-4"></i>
+                        <h3 th:text="${totalAdmins}">0</h3>
+                        <p class="mb-0">Administradores</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Gestión de Usuarios -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0"><i class="bi bi-people"></i> Gestión de Usuarios</h5>
+                            <a th:href="@{/admin/usuarios/nuevo}" class="btn btn-sm btn-light text-dark fw-bold shadow-sm">
+                            <i class="bi bi-person-plus-fill"></i> Crear Admin
+                            </a>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Nombre</th>
+                                        <th>Tipo</th>
+                                        <th>Productos</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="user : ${usuarios}">
+                                        <td th:text="${user.id}">1</td>
+                                        <td>
+                                            <div class="fw-bold" th:text="${user.nombre}">Nombre</div>
+                                            <small class="text-muted" th:text="${user.email}">email</small>
+                                        </td>
+                                        <td>
+                                            <span
+                                                th:class="${user.tipo.name() == 'ADMINISTRADOR'} ? 'badge bg-warning text-dark' : 'badge bg-info'"
+                                                th:text="${user.tipo}">TIPO</span>
+                                        </td>
+                                        <td th:text="${#lists.size(user.dispositivosPublicados)}"></td>
+                                        <td>
+                                            <a th:href="@{/usuarios/eliminar/{id}(id=${user.id})}"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar permanentemente este usuario?')"
+                                                th:if="${user.tipo.name() != 'ADMINISTRADOR' || totalAdmins > 1}">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                            
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gestión de Productos -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0"><i class="bi bi-box"></i> Gestión de Productos</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                            <table class="table table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Precio</th>
+                                        <th>Vendedor</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="disp : ${dispositivos}">
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${disp.imagenUrl}"
+                                                    style="width: 40px; height: 40px; object-fit: contain;"
+                                                    class="me-2">
+                                                <div>
+                                                    <div class="fw-bold small" th:text="${disp.nombre}">Nombre</div>
+                                                    <small class="text-muted" th:text="${disp.categoria}">Cat</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td th:text="'$' + ${disp.precioFormateado}">$0</td>
+                                        <td th:text="${disp.vendedor != null} ? ${disp.vendedor.nombre} : 'N/A'">
+                                            Vendedor</td>
+                                        <td>
+                                            <a th:href="@{/admin/dispositivos/eliminar/{id}(id=${disp.id})}"
+                                                class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar este producto?')">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                            <!--Boton hacia detalles.html-->
+                                            <a th:href="@{/dispositivos/{id}(id=${disp.id})}" class="btn btn-primary w-100 mt-3">
+                                                Detalles
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Reporte Power BI -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow">
+                    <div class="card-header bg-dark text-white d-flex align-items-center">
+                        <i class="bi bi-bar-chart-line me-2"></i>
+                        <h5 class="mb-0">Reporte Power BI</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="ratio" style="--bs-aspect-ratio: 62.25%;">
+                            <iframe title="eco"
+                                src="https://app.powerbi.com/view?r=eyJrIjoiYzY4ZmU2YmEtMTYwZS00OGU3LTgwZTYtOTlhMThhYWVkZmI2IiwidCI6IjlkMTJiZjNmLWU0ZjYtNDdhYi05MTJmLTFhMmYwZmM0OGFhNCIsImMiOjR9"
+                                frameborder="0" allowFullScreen="true">
+                            </iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+
+</html>

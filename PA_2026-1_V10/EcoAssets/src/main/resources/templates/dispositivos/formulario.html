@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Publicar Producto')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+    
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-plus-circle"></i> Publicar nuevo producto</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Info del vendedor automático -->
+                        <div class="alert alert-info mb-3">
+                            <i class="bi bi-info-circle"></i> 
+                            Publicando como: <strong sec:authentication="principal.username">Usuario</strong>
+                        </div>
+                        
+                        <form th:action="@{/dispositivos/guardar}" th:object="${dispositivo}" method="post">
+                            
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nombre del producto *</label>
+                                <input type="text" class="form-control" th:field="*{nombre}" 
+                                       placeholder="Ej: iPhone 15 Pro Max" required>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Marca *</label>
+                                    <input type="text" class="form-control" th:field="*{marca}" 
+                                           placeholder="Ej: Apple" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Modelo *</label>
+                                    <input type="text" class="form-control" th:field="*{modelo}" 
+                                           placeholder="Ej: A2849" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Categoría *</label>
+                                    <select class="form-select" th:field="*{categoria}" required>
+                                        <option value="">Selecciona...</option>
+                                        <option value="Smartphones">Smartphones</option>
+                                        <option value="Laptops">Laptops</option>
+                                        <option value="Tablets">Tablets</option>
+                                        <option value="Consolas">Consolas</option>
+                                        <option value="Audio">Audio</option>
+                                        <option value="Televisores">Televisores</option>
+                                        <option value="Accesorios">Accesorios</option>
+                                        <option value="Accesorios">Otros</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold">Estado *</label>
+                                    <select class="form-select" th:field="*{estado}" required>
+                                        <option value="Usado">Usado</option>
+                                        <option value="Reacondicionado">Reacondicionado</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Precio (COP) *</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" class="form-control" th:field="*{precio}" 
+                                           step="0.01" min="0" placeholder="0.00" required>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">URL de imagen</label>
+                                <input type="url" class="form-control" th:field="*{imagenUrl}" 
+                                       placeholder="https://ejemplo.com/imagen.jpg">
+                                <div class="form-text">Deja en blanco para usar imagen por defecto</div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="departamento" class="form-label">Departamento</label>
+                                <select class="form-select" id="departamento" th:field="*{departamento}" required>
+                                    <option value="" selected>Selecciona un departamento...</option>
+                                    <option value="Antioquia">Antioquia</option>
+                                    <option value="Atlántico">Atlántico</option>
+                                    <option value="Bogotá D.C.">Bogotá D.C.</option>
+                                    <option value="Bolívar">Bolívar</option>
+                                    <option value="Valle del Cauca">Valle del Cauca</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="municipio" class="form-label">Municipio/Ciudad</label>
+                                <input type="text" class="form-control" id="municipio" th:field="*{municipio}" placeholder="Ej: Cartagena" required>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Descripción</label>
+                                <textarea class="form-control" th:field="*{descripcion}" rows="4"
+                                          placeholder="Describe las características del producto..."></textarea>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-check-circle"></i> Publicar producto
+                                </button>
+                                <a href="/dispositivos" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

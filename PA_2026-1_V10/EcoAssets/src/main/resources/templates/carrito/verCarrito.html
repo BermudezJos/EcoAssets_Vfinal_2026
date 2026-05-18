@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Mi Carrito de Compras')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container mt-5 mb-5" style="min-height: 60vh;">
+        <h2 class="fw-bold mb-4"><i class="bi bi-cart3"></i> Mi Carrito de Compras</h2>
+        
+        <div th:if="${mensaje}" class="alert alert-success alert-dismissible fade show">
+            <span th:text="${mensaje}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${error}" class="alert alert-danger alert-dismissible fade show">
+            <span th:text="${error}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <div class="row" th:if="${not #lists.isEmpty(items)}">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 mb-4">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="ps-4">Producto Único</th>
+                                        <th>Condición</th>
+                                        <th>Precio</th>
+                                        <th class="pe-4 text-end">Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="disp : ${items}">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <img th:src="${disp.imagenUrl != null and !disp.imagenUrl.isEmpty()} ? ${disp.imagenUrl} : '/img/default-device.png'" 
+                                                     class="rounded me-3 shadow-sm" style="width: 60px; height: 60px; object-fit: cover;">
+                                                <div>
+                                                    <h6 class="mb-0 fw-bold" th:text="${disp.nombre}">Nombre</h6>
+                                                    <small class="text-muted" th:text="${disp.marca}">Marca</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="badge bg-secondary" th:text="${disp.estado}">Estado</span>
+                                        </td>
+                                        <td class="fw-bold text-success" th:text="'$ ' + ${#numbers.formatDecimal(disp.precio, 0, 'COMMA', 0, 'POINT')}">Precio</td>
+                                        <td class="pe-4 text-end">
+                                            <a th:href="@{/carrito/eliminar/{id}(id=${disp.id})}" class="btn btn-sm btn-outline-danger" title="Eliminar del carrito">
+                                                <i class="bi bi-trash"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <a th:href="@{/carrito/vaciar}" class="btn btn-outline-danger btn-sm mb-3">Vaciar Carrito</a>
+                <a th:href="@{/dispositivos}" class="btn btn-outline-primary btn-sm mb-3 ms-2">Seguir Comprando</a>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="card shadow border-0 bg-light">
+                    <div class="card-body p-4">
+                        <h4 class="fw-bold mb-4">Resumen</h4>
+                        <div class="d-flex justify-content-between mb-4">
+                            <h5 class="fw-bold">Total a Pagar</h5>
+                            <h5 class="fw-bold text-success" th:text="'$ ' + ${#numbers.formatDecimal(total, 0, 'COMMA', 0, 'POINT')}">Total</h5>
+                        </div>
+                        
+                        <a th:href="@{/compra/procesar}" class="btn btn-success w-100 btn-lg shadow-sm fw-bold">
+                            Proceder al Pago <i class="bi bi-arrow-right-circle ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center py-5 mt-4 bg-light rounded shadow-sm" th:if="${#lists.isEmpty(items)}">
+            <i class="bi bi-cart-x display-1 text-muted mb-3"></i>
+            <h3 class="text-muted">Tu carrito está vacío</h3>
+            <p class="text-muted mb-4">¡Explora nuestra tienda de reciclaje y dale una segunda vida a un dispositivo!</p>
+            <a th:href="@{/dispositivos}" class="btn btn-primary btn-lg px-5 rounded-pill shadow-sm">Ver productos</a>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

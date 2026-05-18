@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Vendedores')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+    
+    <div class="container mt-5 mb-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold"><i class="bi bi-people"></i> Vendedores registrados</h2>
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
+                <i class="bi bi-person-plus"></i> Nuevo usuario
+            </button>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-4" th:each="user : ${usuarios}">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 60px; height: 60px; font-size: 1.5rem;">
+                                <span th:text="${#strings.substring(user.nombre, 0, 1)}">U</span>
+                            </div>
+                            <div>
+                                <h5 class="card-title mb-1" th:text="${user.nombre}">Nombre</h5>
+                                <span class="badge bg-info" th:text="${user.tipo}">USUARIO</span>
+                            </div>
+                        </div>
+                        
+                        <ul class="list-unstyled text-muted mb-3">
+                            <li><i class="bi bi-envelope"></i> <span th:text="${user.email}">email</span></li>
+                            <li><i class="bi bi-telephone"></i> <span th:text="${user.telefono}">tel</span></li>
+                            <li><i class="bi bi-box"></i> <span th:text="${#lists.size(user.dispositivosPublicados)}">0</span> productos</li>
+                        </ul>
+                        
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/usuarios/perfil/{id}(id=${user.id})}" class="btn btn-outline-primary">
+                                <i class="bi bi-eye"></i> Ver perfil
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal crear usuario -->
+        <div class="modal fade" id="modalCrearUsuario" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Crear nuevo usuario</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form th:action="@{/usuarios/crear}" method="post">
+                        <div class="modal-body">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre completo *</label>
+                                <input type="text" class="form-control" name="nombre" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Email *</label>
+                                <input type="email" class="form-control" name="email" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Teléfono</label>
+                                <input type="tel" class="form-control" name="telefono">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                            <button type="submit" class="btn btn-primary">Crear usuario</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

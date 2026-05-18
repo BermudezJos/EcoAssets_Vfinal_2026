@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head('Editar Perfil')}"></head>
+<body>
+    <div th:replace="~{fragments/header :: navbar}"></div>
+
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 col-lg-6">
+                <div class="card shadow">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0"><i class="bi bi-person-lines-fill"></i> Editar Mi Perfil</h4>
+                    </div>
+                    <div class="card-body p-4">
+                        <form th:action="@{/usuarios/editar/{id}(id=${usuario.id})}" th:object="${usuario}" method="post">
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Nombre Completo *</label>
+                                <input type="text" class="form-control" th:field="*{nombre}" required>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Teléfono</label>
+                                <input type="tel" class="form-control" th:field="*{telefono}">
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Correo Electrónico</label>
+                                <input type="email" class="form-control" th:field="*{email}" readonly 
+                                       title="El correo no se puede cambiar por motivos de seguridad">
+                                <div class="form-text">No puedes modificar tu correo electrónico actualmente.</div>
+                            </div>
+
+                            <div class="d-flex gap-2 mt-4">
+                                <button type="submit" class="btn btn-primary flex-grow-1">
+                                    <i class="bi bi-check-lg"></i> Guardar cambios
+                                </button>
+                                <a th:href="@{/usuarios/perfil/{id}(id=${usuario.id})}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-x-lg"></i> Cancelar
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
