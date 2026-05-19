@@ -4,6 +4,8 @@ import com.ecommerce.electronicos.model.Dispositivo;
 import com.ecommerce.electronicos.model.Usuario;
 import com.ecommerce.electronicos.service.DispositivoService;
 import com.ecommerce.electronicos.service.UsuarioService;
+
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,36 +28,42 @@ public class DispositivoController {
     }
     
     @GetMapping({"","/"})
-    public String listarDispositivos(
-            @RequestParam(required = false) String categoria,
-            @RequestParam(required = false) Double precioMin,
-            @RequestParam(required = false) Double precioMax,
-            @RequestParam(required = false) String departamento,
-            @RequestParam(required = false) String municipio,
-            @RequestParam(required = false) String marca,
-            @RequestParam(required = false) String ordenPrecio,
-            Model model) {
+public String listarDispositivos(
+        @RequestParam(required = false) String categoria,
+        @RequestParam(required = false) Double precioMin,
+        @RequestParam(required = false) Double precioMax,
+        @RequestParam(required = false) String departamento,
+        @RequestParam(required = false) String municipio,
+        @RequestParam(required = false) String marca,
+        @RequestParam(required = false) String ordenPrecio,
+        @RequestParam(defaultValue = "0") int page,
+        Model model) {
 
-        // Llamar metodo del servicio
-        List<Dispositivo> dispositivos = dispositivoService.buscarDispositivosConFiltros(
-                categoria, precioMin, precioMax, departamento, municipio, marca, ordenPrecio);
+    int cantidadPorPagina = 20;
 
-        //lista filtrada a la página HTML
-        model.addAttribute("dispositivos", dispositivos);
+    // Llamamos al nuevo servicio que hace todo el trabajo mágico
+    Page<Dispositivo> pagina = dispositivoService.buscarDispositivosConFiltros(
+            categoria, precioMin, precioMax, departamento, municipio, marca, ordenPrecio, page, cantidadPorPagina);
 
-        model.addAttribute("totalDispositivos", dispositivos.size());
+    // Mandamos los datos a la vista
+    model.addAttribute("dispositivos", pagina.getContent());
+    model.addAttribute("totalDispositivos", pagina.getTotalElements());
+    model.addAttribute("currentPage", page);
+    model.addAttribute("totalPages", pagina.getTotalPages());
 
-        model.addAttribute("categorias", List.of("Smartphones", "Laptops", "Tablets", "Consolas", "Audio", "Televisores", "Accesorios", "Otros"));
-        model.addAttribute("categoriaSeleccionada", categoria);
-        model.addAttribute("precioMinSeleccionado", precioMin);
-        model.addAttribute("precioMaxSeleccionado", precioMax);
-        model.addAttribute("departamentoSeleccionado", departamento);
-        model.addAttribute("municipioSeleccionado", municipio);
-        model.addAttribute("marcaSeleccionada", marca);
-        model.addAttribute("ordenSeleccionado", ordenPrecio);
+    // Mantenemos los filtros para que los botones de HTML tengan memoria
+    model.addAttribute("categorias", List.of("Smartphones", "Laptops", "Tablets", "Consolas", "Audio", "Televisores", "Accesorios", "Otros"));
+    model.addAttribute("categoriaSeleccionada", categoria);
+    model.addAttribute("precioMinSeleccionado", precioMin);
+    model.addAttribute("precioMaxSeleccionado", precioMax);
+    model.addAttribute("departamentoSeleccionado", departamento);
+    model.addAttribute("municipioSeleccionado", municipio);
+    model.addAttribute("marcaSeleccionada", marca);
+    model.addAttribute("ordenSeleccionado", ordenPrecio);
 
-        return "dispositivos/lista";
-    }
+    return "dispositivos/lista";
+}
+
 
     @GetMapping("/{id}")
 public String verDetalleDispositivo(@PathVariable String id, Model model) {
