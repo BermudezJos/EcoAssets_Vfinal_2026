@@ -91,12 +91,40 @@ public class UsuarioController {
         return "redirect:/usuarios";
     }
     
-    // Este método ahora solo lo puede usar ADMIN (configurado en SecurityConfig)
+    // eliminar
     @GetMapping("/eliminar/{id}")
-    public String eliminarUsuario(@PathVariable String id) {
-        usuarioService.eliminarUsuario(id);
-        return "redirect:/admin/panel";
+public String eliminarUsuario(@PathVariable String id, Authentication authentication, HttpServletRequest request) {
+    // 1. Si no hay nadie logueado, pa' fuera
+    if (authentication == null) return "redirect:/login";
+
+    Optional<Usuario> usuarioOpt = usuarioService.obtenerPorId(id);
+    if (usuarioOpt.isPresent()) {
+        Usuario usuarioAEliminar = usuarioOpt.get();
+        String emailLogueado = authentication.getName();
+        
+        // 2. Verificamos quién está intentando borrar
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        boolean isOwner = usuarioAEliminar.getEmail().equals(emailLogueado);
+
+        // 3. Si es el dueño de la cuenta o es un administrador, procedemos a borrar
+        if (isAdmin || isOwner) {
+            usuarioService.eliminarUsuario(id);
+            
+            if (isOwner) {
+                // Si el usuario se "suicidó" (borró su propia cuenta), cerramos su sesión
+                request.getSession().invalidate();
+                return "redirect:/login?logout";
+            } else {
+                // Si un admin borró a alguien más, lo devolvemos al panel
+                return "redirect:/admin/panel"; 
+            }
+        }
     }
+    
+    // Si alguien intenta borrar sin permiso o el usuario no existe, lo regresamos a la tienda
+    return "redirect:/dispositivos";
+}
 
     @GetMapping("/editar/{id}")
     public String mostrarFormularioEditarPerfil(@PathVariable String id, Authentication authentication, Model model) {
