@@ -5,6 +5,10 @@ import com.ecommerce.electronicos.model.Usuario;
 import com.ecommerce.electronicos.service.DispositivoService;
 import com.ecommerce.electronicos.service.PedidoService;
 import com.ecommerce.electronicos.service.UsuarioService;
+
+import jakarta.servlet.http.HttpServletRequest;
+
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
