@@ -7,7 +7,11 @@ import com.ecommerce.electronicos.repository.DispositivoRepository;
 import com.ecommerce.electronicos.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
@@ -127,5 +131,20 @@ public class UsuarioService {
         
         // Guardar en la base de datos
         usuarioRepository.save(usuario);
+    }
+
+    public Page<Usuario> obtenerUsuariosNormalesPagina(int page, int size) {
+    Pageable pageable = PageRequest.of(page, size);
+    
+    // Traemos de MongoDB únicamente los 30 usuarios correspondientes a la página actual
+    Page<Usuario> usuariosPagina = usuarioRepository.findByTipo(TipoUsuario.USUARIO, pageable);
+    
+    // OPTIMIZACIÓN DE ORO: Solo llenamos la lista de dispositivos de los 30 vendedores de esta página
+    for (Usuario usuario : usuariosPagina.getContent()) {
+        List<Dispositivo> susDispositivos = dispositivoRepository.findByVendedorId(usuario.getId());
+        usuario.setDispositivosPublicados(susDispositivos);
+    }
+    
+    return usuariosPagina;
     }
 }
