@@ -10,10 +10,14 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+
+import org.springframework.data.domain.Pageable;
 
 @Service
 public class DispositivoService {
@@ -86,57 +90,45 @@ public class DispositivoService {
     private MongoTemplate mongoTemplate;
 
     // Súper método para búsqueda facetada (filtros dinámicos)
-    public List<Dispositivo> buscarDispositivosConFiltros(
-            String categoria, Double precioMin, Double precioMax, 
-            String departamento, String municipio, String marca, 
-            String ordenPrecio) {
+    // Reemplaza tu método buscarDispositivosConFiltros actual por este:
+public Page<Dispositivo> buscarDispositivosConFiltros(
+        String categoria, Double precioMin, Double precioMax, 
+        String departamento, String municipio, String marca, 
+        String ordenPrecio, int page, int size) {
 
-        Query query = new Query();
+    Query query = new Query();
+    query.addCriteria(Criteria.where("disponible").is(true));
+    
+    // Tus filtros intactos
+    if (categoria != null && !categoria.isEmpty()) query.addCriteria(Criteria.where("categoria").is(categoria));
+    if (marca != null && !marca.isEmpty()) query.addCriteria(Criteria.where("marca").regex(marca, "i"));
+    if (departamento != null && !departamento.isEmpty()) query.addCriteria(Criteria.where("departamento").is(departamento));
+    if (municipio != null && !municipio.isEmpty()) query.addCriteria(Criteria.where("municipio").regex(municipio, "i"));
 
-        query.addCriteria(Criteria.where("disponible").is(true));
-        
-        // 1. Filtro por categoría (si el usuario la seleccionó)
-        if (categoria != null && !categoria.isEmpty()) {
-            query.addCriteria(Criteria.where("categoria").is(categoria));
-        }
-
-        // 2. Filtro por marca (la "i" es para ignorar mayúsculas/minúsculas)
-        if (marca != null && !marca.isEmpty()) {
-            query.addCriteria(Criteria.where("marca").regex(marca, "i"));
-        }
-
-        // 3. Filtros por Ubicación
-        if (departamento != null && !departamento.isEmpty()) {
-            query.addCriteria(Criteria.where("departamento").is(departamento));
-        }
-        if (municipio != null && !municipio.isEmpty()) {
-            query.addCriteria(Criteria.where("municipio").regex(municipio, "i"));
-        }
-
-        // 4. Filtro por rango de Precios (Ej: Menos de 50mil, o entre 50 y 100mil)
-        if (precioMin != null || precioMax != null) {
-            Criteria criteriaPrecio = Criteria.where("precio");
-            if (precioMin != null) {
-                criteriaPrecio.gte(precioMin); // Mayor o igual a (Greater Than or Equal)
-            }
-            if (precioMax != null) {
-                criteriaPrecio.lte(precioMax); // Menor o igual a (Less Than or Equal)
-            }
-            query.addCriteria(criteriaPrecio);
-        }
-
-        // 5. Ordenamiento de productos (De menor a mayor o viceversa)
-        if (ordenPrecio != null && !ordenPrecio.isEmpty()) {
-            if (ordenPrecio.equalsIgnoreCase("asc")) {
-                query.with(Sort.by(Sort.Direction.ASC, "precio")); // Más baratos primero
-            } else if (ordenPrecio.equalsIgnoreCase("desc")) {
-                query.with(Sort.by(Sort.Direction.DESC, "precio")); // Más caros primero
-            }
-        }
-
-        // Ejecuta la consulta combinada y devuelve la lista de dispositivos
-        return mongoTemplate.find(query, Dispositivo.class);
+    if (precioMin != null || precioMax != null) {
+        Criteria criteriaPrecio = Criteria.where("precio");
+        if (precioMin != null) criteriaPrecio.gte(precioMin);
+        if (precioMax != null) criteriaPrecio.lte(precioMax);
+        query.addCriteria(criteriaPrecio);
     }
+
+    if (ordenPrecio != null && !ordenPrecio.isEmpty()) {
+        if (ordenPrecio.equalsIgnoreCase("asc")) query.with(Sort.by(Sort.Direction.ASC, "precio"));
+        else if (ordenPrecio.equalsIgnoreCase("desc")) query.with(Sort.by(Sort.Direction.DESC, "precio"));
+    }
+
+    // 1. Contar el total REAL de resultados antes de cortar (¡Rápido!)
+    long total = mongoTemplate.count(query, Dispositivo.class);
+
+    // 2. Decirle a MongoDB exactamente qué página queremos
+    Pageable pageable = PageRequest.of(page, size);
+    query.with(pageable);
+
+    // 3. MongoDB nos trae SOLO los 20 dispositivos de esa página (¡Ultra rápido!)
+    List<Dispositivo> dispositivos = mongoTemplate.find(query, Dispositivo.class);
+
+    return new org.springframework.data.domain.PageImpl<>(dispositivos, pageable, total);
+}
 
     public List<Dispositivo> obtenerTodosDisponibles() {
         return dispositivoRepository.findByDisponibleTrue();
@@ -145,6 +137,14 @@ public class DispositivoService {
     public List<Dispositivo> obtenerPorCategoria(String categoria) {
     
         return dispositivoRepository.findByCategoriaAndDisponibleTrue(categoria);
+    }
+
+    public Page<Dispositivo> obtenerPaginaDeDispositivos(int page, int size) {
+    // Esto crea las instrucciones: "Quiero la página X, con Y cantidad de elementos"
+    Pageable pageable = PageRequest.of(page, size);
+    
+    // Tu repositorio de Mongo ya trae el método findAll(pageable) oculto de fábrica
+    return dispositivoRepository.findAll(pageable); 
     }
 
     
