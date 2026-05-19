@@ -28,8 +28,16 @@ public class UsuarioController {
     }
     
     @GetMapping
-    public String listarUsuarios(Model model) {
-        model.addAttribute("usuarios", usuarioService.obtenerUsuariosNormales());
+    public String listarUsuarios(@RequestParam(defaultValue = "0") int page, Model model) {
+        int cantidadPorPagina = 30; // Ajustado a un mínimo de 30 personas por página como solicitaste
+        
+        Page<Usuario> usuariosPagina = usuarioService.obtenerUsuariosNormalesPagina(page, cantidadPorPagina);
+        
+        // Enviamos los datos ordenados al HTML
+        model.addAttribute("usuarios", usuariosPagina.getContent());
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", usuariosPagina.getTotalPages());
+        
         return "usuarios/lista";
     }
     
