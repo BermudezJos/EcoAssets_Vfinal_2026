@@ -29,6 +29,7 @@ public class DispositivoController {
     
     @GetMapping({"","/"})
 public String listarDispositivos(
+        @RequestParam(required = false) String busqueda,
         @RequestParam(required = false) String categoria,
         @RequestParam(required = false) Double precioMin,
         @RequestParam(required = false) Double precioMax,
@@ -43,7 +44,7 @@ public String listarDispositivos(
 
     // Llamamos al nuevo servicio que hace todo el trabajo mágico
     Page<Dispositivo> pagina = dispositivoService.buscarDispositivosConFiltros(
-            categoria, precioMin, precioMax, departamento, municipio, marca, ordenPrecio, page, cantidadPorPagina);
+            busqueda, categoria, precioMin, precioMax, departamento, municipio, marca, ordenPrecio, page, cantidadPorPagina);
 
     // Mandamos los datos a la vista
     model.addAttribute("dispositivos", pagina.getContent());
@@ -60,6 +61,7 @@ public String listarDispositivos(
     model.addAttribute("municipioSeleccionado", municipio);
     model.addAttribute("marcaSeleccionada", marca);
     model.addAttribute("ordenSeleccionado", ordenPrecio);
+    model.addAttribute("busqueda", busqueda);
 
     return "dispositivos/lista";
 }
