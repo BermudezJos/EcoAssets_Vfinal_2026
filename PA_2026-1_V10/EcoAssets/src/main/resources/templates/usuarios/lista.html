@@ -7,9 +7,6 @@
     <div class="container mt-5 mb-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold"><i class="bi bi-people"></i> Vendedores registrados</h2>
-            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalCrearUsuario">
-                <i class="bi bi-person-plus"></i> Nuevo usuario
-            </button>
         </div>
         
         <div class="row g-4">
@@ -43,36 +40,24 @@
             </div>
         </div>
         
-        <!-- Modal crear usuario -->
-        <div class="modal fade" id="modalCrearUsuario" tabindex="-1">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Crear nuevo usuario</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <form th:action="@{/usuarios/crear}" method="post">
-                        <div class="modal-body">
-                            <div class="mb-3">
-                                <label class="form-label">Nombre completo *</label>
-                                <input type="text" class="form-control" name="nombre" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Email *</label>
-                                <input type="email" class="form-control" name="email" required>
-                            </div>
-                            <div class="mb-3">
-                                <label class="form-label">Teléfono</label>
-                                <input type="tel" class="form-control" name="telefono">
-                            </div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                            <button type="submit" class="btn btn-primary">Crear usuario</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
+        <div class="d-flex justify-content-center align-items-center mt-5" th:if="${totalPages > 1}">
+            
+            <a th:if="${currentPage > 0}" 
+            th:href="@{/usuarios(page=${currentPage - 1})}" 
+            class="btn btn-primary me-3">
+            <i class="bi bi-chevron-left"></i> Anterior
+            </a>
+
+            <span class="text-muted fw-bold">
+                Página <span th:text="${currentPage + 1}"></span> de <span th:text="${totalPages}"></span>
+            </span>
+
+            <a th:if="${currentPage < totalPages - 1}" 
+            th:href="@{/usuarios(page=${currentPage + 1})}" 
+            class="btn btn-primary ms-3">
+            Siguiente <i class="bi bi-chevron-right"></i>
+            </a>
+            
         </div>
     </div>
     
