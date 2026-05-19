@@ -22,14 +22,17 @@
     <!-- Categorías -->
     <div class="container mt-4">
         <div class="d-flex gap-2 overflow-auto pb-3">
-            <a th:href="@{/dispositivos}" 
-               th:class="${categoriaSeleccionada == null} ? 'btn btn-primary' : 'btn btn-outline-primary'"
-               class="rounded-pill">Todos</a>
+        
+            <a th:href="@{/dispositivos(marca=${marcaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, ordenPrecio=${ordenSeleccionado})}" 
+            th:class="${categoriaSeleccionada == null} ? 'btn btn-primary' : 'btn btn-outline-primary'"
+            class="rounded-pill">Todos</a>
+            
             <a th:each="cat : ${categorias}" 
-               th:href="@{/dispositivos(categoria=${cat})}"
-               th:class="${categoriaSeleccionada == cat} ? 'btn btn-primary' : 'btn btn-outline-primary'"
-               class="rounded-pill"
-               th:text="${cat}">Categoría</a>
+            th:href="@{/dispositivos(categoria=${cat}, marca=${marcaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, ordenPrecio=${ordenSeleccionado})}"
+            th:class="${categoriaSeleccionada == cat} ? 'btn btn-primary' : 'btn btn-outline-primary'"
+            class="rounded-pill"
+            th:text="${cat}">Categoría</a>
+           
         </div>
     </div>
 
@@ -39,7 +42,7 @@
             <h5 class="card-title mb-3">Filtros de Búsqueda</h5>
         
             <form action="/dispositivos" method="GET" class="row g-3">
-
+                <input type="hidden" name="categoria" th:value="${categoriaSeleccionada}">
 
             <div class="col-md-3">
                 <label class="form-label text-muted small">Marca</label>
@@ -161,6 +164,26 @@
                     </div>
             </div>
         </div>
+
+        <div class="d-flex justify-content-center align-items-center mt-5" th:if="${totalPages != null and totalPages > 1}">
+    
+    <a th:if="${currentPage > 0}" 
+       th:href="@{/dispositivos(page=${currentPage - 1}, categoria=${categoriaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, marca=${marcaSeleccionada}, ordenPrecio=${ordenSeleccionado})}" 
+       class="btn btn-primary me-3">
+       <i class="bi bi-chevron-left"></i> Anterior
+    </a>
+
+    <span class="text-muted fw-bold">
+        Página <span th:text="${currentPage + 1}"></span> de <span th:text="${totalPages}"></span>
+    </span>
+
+    <a th:if="${currentPage < totalPages - 1}" 
+       th:href="@{/dispositivos(page=${currentPage + 1}, categoria=${categoriaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, marca=${marcaSeleccionada}, ordenPrecio=${ordenSeleccionado})}" 
+       class="btn btn-primary ms-3">
+       Siguiente <i class="bi bi-chevron-right"></i>
+    </a>
+    
+</div>
         
         <!-- Mensaje si no hay resultados -->
         <div class="text-center py-5" th:if="${#lists.isEmpty(dispositivos)}">
@@ -170,6 +193,7 @@
             <a href="/dispositivos" class="btn btn-primary">Ver todos los productos</a>
         </div>
     </div>
+
     
     <!-- Botón flotante para publicar (solo autenticados) -->
     <a href="/dispositivos/nuevo" class="btn btn-publish" sec:authorize="isAuthenticated()">
