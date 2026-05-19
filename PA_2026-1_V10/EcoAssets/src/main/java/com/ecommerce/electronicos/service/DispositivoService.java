@@ -90,16 +90,21 @@ public class DispositivoService {
     private MongoTemplate mongoTemplate;
 
     // Súper método para búsqueda facetada (filtros dinámicos)
-    // Reemplaza tu método buscarDispositivosConFiltros actual por este:
+
 public Page<Dispositivo> buscarDispositivosConFiltros(
+        String busqueda,
         String categoria, Double precioMin, Double precioMax, 
         String departamento, String municipio, String marca, 
         String ordenPrecio, int page, int size) {
 
     Query query = new Query();
     query.addCriteria(Criteria.where("disponible").is(true));
+
+    if (busqueda != null && !busqueda.isEmpty()) {
+        query.addCriteria(Criteria.where("nombre").regex(busqueda, "i"));
+    }
     
-    // Tus filtros intactos
+    // filtros
     if (categoria != null && !categoria.isEmpty()) query.addCriteria(Criteria.where("categoria").is(categoria));
     if (marca != null && !marca.isEmpty()) query.addCriteria(Criteria.where("marca").regex(marca, "i"));
     if (departamento != null && !departamento.isEmpty()) query.addCriteria(Criteria.where("departamento").is(departamento));
@@ -117,7 +122,7 @@ public Page<Dispositivo> buscarDispositivosConFiltros(
         else if (ordenPrecio.equalsIgnoreCase("desc")) query.with(Sort.by(Sort.Direction.DESC, "precio"));
     }
 
-    // 1. Contar el total REAL de resultados antes de cortar (¡Rápido!)
+    // 1. Contar el total REAL de resultados antes de cortar
     long total = mongoTemplate.count(query, Dispositivo.class);
 
     // 2. Decirle a MongoDB exactamente qué página queremos
