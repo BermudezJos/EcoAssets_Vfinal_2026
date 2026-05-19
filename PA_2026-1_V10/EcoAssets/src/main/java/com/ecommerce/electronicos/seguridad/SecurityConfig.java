@@ -8,9 +8,9 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.http.SessionCreationPolicy; // <-- Nuevo import
+import org.springframework.security.config.http.SessionCreationPolicy; 
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter; // <-- Nuevo import
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -43,7 +43,7 @@ public class SecurityConfig {
                 
                 // Solo Admin: Panel admin y eliminar cualquier usuario
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/usuarios/eliminar/**").hasRole("ADMIN")
+                .requestMatchers("/usuarios/eliminar/**").authenticated()
                 
                 // Publicar productos 
                 .requestMatchers("/dispositivos/nuevo", "/dispositivos/guardar").authenticated()
