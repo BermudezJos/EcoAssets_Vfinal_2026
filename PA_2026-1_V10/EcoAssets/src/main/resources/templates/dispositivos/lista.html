@@ -23,7 +23,7 @@
     <div class="container mt-4">
         <div class="d-flex gap-2 overflow-auto pb-3">
         
-            <a th:href="@{/dispositivos(marca=${marcaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, ordenPrecio=${ordenSeleccionado})}" 
+            <a th:href="@{/dispositivos(busqueda=${busqueda}, marca=${marcaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, ordenPrecio=${ordenSeleccionado})}" 
             th:class="${categoriaSeleccionada == null} ? 'btn btn-primary' : 'btn btn-outline-primary'"
             class="rounded-pill">Todos</a>
             
@@ -43,6 +43,8 @@
         
             <form action="/dispositivos" method="GET" class="row g-3">
                 <input type="hidden" name="categoria" th:value="${categoriaSeleccionada}">
+                
+                <input type="hidden" name="busqueda" th:value="${busqueda}"> ```
 
             <div class="col-md-3">
                 <label class="form-label text-muted small">Marca</label>
@@ -165,6 +167,7 @@
             </div>
         </div>
 
+        <!--paginacion-->
         <div class="d-flex justify-content-center align-items-center mt-5" th:if="${totalPages != null and totalPages > 1}">
     
     <a th:if="${currentPage > 0}" 
@@ -178,7 +181,7 @@
     </span>
 
     <a th:if="${currentPage < totalPages - 1}" 
-       th:href="@{/dispositivos(page=${currentPage + 1}, categoria=${categoriaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, marca=${marcaSeleccionada}, ordenPrecio=${ordenSeleccionado})}" 
+       th:href="@{/dispositivos(busqueda=${busqueda}, page=${currentPage + 1}, categoria=${categoriaSeleccionada}, precioMin=${precioMinSeleccionado}, precioMax=${precioMaxSeleccionado}, departamento=${departamentoSeleccionado}, municipio=${municipioSeleccionado}, marca=${marcaSeleccionada}, ordenPrecio=${ordenSeleccionado})}" 
        class="btn btn-primary ms-3">
        Siguiente <i class="bi bi-chevron-right"></i>
     </a>
