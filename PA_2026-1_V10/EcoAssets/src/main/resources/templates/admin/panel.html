@@ -97,6 +97,24 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-center mt-3 mb-2" th:if="${usuariosPage.totalPages > 1}">
+    <a th:if="${usuariosPage.hasPrevious()}" 
+       th:href="@{/admin/panel(usuariosPage=${usuariosPage.number - 1}, dispositivosPage=${dispositivosPage.number})}" 
+       class="btn btn-sm btn-primary me-2">
+       <i class="bi bi-chevron-left"></i> Anterior
+    </a>
+    
+    <span class="text-muted fw-bold align-self-center mx-2" 
+          th:text="'Página ' + (${usuariosPage.number + 1}) + ' de ' + ${usuariosPage.totalPages}">
+    </span>
+    
+    <a th:if="${usuariosPage.hasNext()}" 
+       th:href="@{/admin/panel(usuariosPage=${usuariosPage.number + 1}, dispositivosPage=${dispositivosPage.number})}" 
+       class="btn btn-sm btn-primary ms-2">
+       Siguiente <i class="bi bi-chevron-right"></i>
+    </a>
+</div>
+
                     </div>
                 </div>
             </div>
@@ -149,6 +167,23 @@
                                 </tbody>
                             </table>
                         </div>
+                        <div class="d-flex justify-content-center mt-3 mb-2" th:if="${dispositivosPage.totalPages > 1}">
+    <a th:if="${dispositivosPage.hasPrevious()}" 
+       th:href="@{/admin/panel(usuariosPage=${usuariosPage.number}, dispositivosPage=${dispositivosPage.number - 1})}" 
+       class="btn btn-sm btn-primary me-2">
+       <i class="bi bi-chevron-left"></i> Anterior
+    </a>
+    
+    <span class="text-muted fw-bold align-self-center mx-2" 
+          th:text="'Página ' + (${dispositivosPage.number + 1}) + ' de ' + ${dispositivosPage.totalPages}">
+    </span>
+    
+    <a th:if="${dispositivosPage.hasNext()}" 
+       th:href="@{/admin/panel(usuariosPage=${usuariosPage.number}, dispositivosPage=${dispositivosPage.number + 1})}" 
+       class="btn btn-sm btn-primary ms-2">
+       Siguiente <i class="bi bi-chevron-right"></i>
+    </a>
+</div>
                     </div>
                 </div>
             </div>
