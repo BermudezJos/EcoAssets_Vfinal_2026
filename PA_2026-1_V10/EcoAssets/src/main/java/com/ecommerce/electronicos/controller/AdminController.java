@@ -1,13 +1,19 @@
 package com.ecommerce.electronicos.controller;
 
+import com.ecommerce.electronicos.model.Dispositivo;
 import com.ecommerce.electronicos.model.TipoUsuario;
 import com.ecommerce.electronicos.model.Usuario;
 import com.ecommerce.electronicos.service.DispositivoService;
 import com.ecommerce.electronicos.service.UsuarioService;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import org.springframework.data.domain.Sort;
 
 @Controller
 @RequestMapping("/admin")
@@ -22,17 +28,6 @@ public class AdminController {
         this.usuarioService = usuarioService;
         this.dispositivoService = dispositivoService;
         
-    }
-    
-    @GetMapping("/panel")
-    public String panelAdministracion(Model model) {
-        model.addAttribute("usuarios", usuarioService.obtenerTodos());
-        model.addAttribute("dispositivos", dispositivoService.obtenerTodos());
-        model.addAttribute("totalUsuarios", usuarioService.obtenerTodos().size());
-        model.addAttribute("totalDispositivos", dispositivoService.obtenerTodos().size());
-        model.addAttribute("totalNormales", usuarioService.obtenerUsuariosNormales().size());
-        model.addAttribute("totalAdmins", usuarioService.obtenerAdministradores().size());
-        return "admin/panel";
     }
     
     // 1. Método para mostrar el formulario de registro adaptado para Admin
@@ -61,9 +56,34 @@ public class AdminController {
         
         return "redirect:/admin/panel";
     }    
+    
     @GetMapping("/dispositivos/eliminar/{id}")
     public String eliminarDispositivo(@PathVariable String id) {
         dispositivoService.eliminarDispositivo(id);
         return "redirect:/admin/panel";
+    }
+
+    @GetMapping({"/panel"})
+    public String panelAdministracion(
+            Model model,
+            @RequestParam(defaultValue = "0") int usuariosPage,
+            @RequestParam(defaultValue = "0") int dispositivosPage) {
+
+        Page<Usuario> pageUsuarios = usuarioService.obtenerTodosPaginado(
+                PageRequest.of(usuariosPage, 8, Sort.by("nombre")));
+
+        Page<Dispositivo> pageDispositivos = dispositivoService.obtenerPaginaDeDispositivos(
+                dispositivosPage, 8);
+
+        model.addAttribute("usuariosPage", pageUsuarios);
+        model.addAttribute("dispositivosPage", pageDispositivos);
+
+        // Estadísticas — usando count directo para no cargar todos los datos
+        model.addAttribute("totalUsuarios", usuarioService.obtenerTodos().size());
+        model.addAttribute("totalDispositivos", dispositivoService.obtenerTodos().size());
+        model.addAttribute("totalNormales", usuarioService.obtenerUsuariosNormales().size());
+        model.addAttribute("totalAdmins", usuarioService.obtenerAdministradores().size());
+
+        return "admin/panel";
     }
 }
