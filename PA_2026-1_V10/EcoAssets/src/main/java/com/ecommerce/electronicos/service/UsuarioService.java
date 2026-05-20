@@ -147,4 +147,13 @@ public class UsuarioService {
     
     return usuariosPagina;
     }
+
+    public Page<Usuario> obtenerTodosPaginado(Pageable pageable) {
+    Page<Usuario> usuariosPagina = usuarioRepository.findAll(pageable);
+    for (Usuario usuario : usuariosPagina.getContent()) {
+        List<Dispositivo> susDispositivos = dispositivoRepository.findByVendedorId(usuario.getId());
+        usuario.setDispositivosPublicados(susDispositivos);
+    }
+    return usuariosPagina;
+}
 }
