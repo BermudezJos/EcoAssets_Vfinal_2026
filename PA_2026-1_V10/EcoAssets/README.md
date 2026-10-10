@@ -1,2 +1,1 @@
 ﻿# Version de EcoAssets para Render.com
-# Version de PA del 2026-1
